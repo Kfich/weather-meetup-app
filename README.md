@@ -23,7 +23,7 @@ A React-based weather comparison application that allows users to compare weathe
 1. Clone the repository
 ```bash
 git clone https://github.com/kfich/weather-meetup-app.git
-cd weather-comparison-app
+cd weather-app
 ```
 
 2. Install dependencies
