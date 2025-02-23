@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AlertCircle, MapPin, RefreshCw } from 'lucide-react';
 import LocationPicker from '../location/LocationPicker';
 import WeatherComparison from './WeatherComparison';
 import WeatherChart from './WeatherChart';
 import WeatherAdvice from './WeatherAdvice';
 import WeatherSummary from './WeatherSummary';
+import WeekSelector from '../date/WeekSelector';
 import { useWeather } from '../../contexts/WeatherContext';
 import { useGeolocation } from '../../hooks/useGeolocation';
 
@@ -12,29 +13,24 @@ const WeatherDashboard = () => {
   const { state, dispatch } = useWeather();
   const { location, loading, error } = state;
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const { getLocation } = useGeolocation();
 
-  // Reset state on component mount
-  useEffect(() => {
-    dispatch({ type: 'RESET_STATE' });
-  }, [dispatch]);
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    // Trigger a new weather fetch with the updated date
+    if (location) {
+      handleRefresh();
+    }
+  };
 
   const handleRefresh = async () => {
     if (location) {
       setIsRefreshing(true);
-      dispatch({ type: 'RESET_STATE' });
-      
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
-        
-        // Re-fetch location data
-        dispatch({ type: 'SET_LOCATION', payload: location });
-      } catch (error) {
-        dispatch({
-          type: 'SET_ERROR',
-          payload: 'Failed to refresh weather data'
-        });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        dispatch({ type: 'REFRESH_WEATHER' });
       } finally {
         setIsRefreshing(false);
         dispatch({ type: 'SET_LOADING', payload: false });
@@ -44,10 +40,6 @@ const WeatherDashboard = () => {
 
   const handleUseCurrentLocation = async () => {
     try {
-      // Reset state before fetching new location
-      dispatch({ type: 'RESET_STATE' });
-      dispatch({ type: 'SET_LOADING', payload: true });
-
       const position = await getLocation();
       if (position) {
         const locationString = `${position.latitude.toFixed(4)},${position.longitude.toFixed(4)}`;
@@ -61,22 +53,8 @@ const WeatherDashboard = () => {
         type: 'SET_ERROR',
         payload: error.message
       });
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
-
-  // Reset on beforeunload event
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      dispatch({ type: 'RESET_STATE' });
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [dispatch]);
 
   return (
     <div className="space-y-6">
@@ -87,7 +65,7 @@ const WeatherDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Select Location
             </h2>
-            {/* <button
+            <button
               onClick={handleUseCurrentLocation}
               disabled={loading}
               className={`flex items-center text-sm text-primary-600 hover:text-primary-700
@@ -95,7 +73,7 @@ const WeatherDashboard = () => {
             >
               <MapPin className="w-4 h-4 mr-1" />
               Use my location
-            </button> */}
+            </button>
           </div>
         </div>
         <div className="p-6">
@@ -119,7 +97,7 @@ const WeatherDashboard = () => {
       {/* Weather Content */}
       {location && !loading && !error && (
         <div className="space-y-6">
-          {/* Location and Refresh Section */}
+          {/* Location and Controls */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MapPin className="w-5 h-5 text-gray-400 mr-2" />
@@ -138,21 +116,24 @@ const WeatherDashboard = () => {
             </button>
           </div>
 
-          {/* Weather Summary */}
           <WeatherSummary />
-
-          {/* Weather Advice */}
           <WeatherAdvice />
-
-          {/* Weather Comparison Cards */}
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            Select Week for Forecast
+            <span className="text-sm text-gray-500 ml-2">
+              (Monday to Sunday)
+            </span>
+          </h2>
+          <WeekSelector currentDate={selectedDate} onDateChange={handleDateChange} />
+          
+          {/* Weather Comparison and Chart */}
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-6">
-              Friday Weather Comparison
+              Weather Comparison
             </h2>
             <WeatherComparison />
           </div>
 
-          {/* Weather Chart */}
           <WeatherChart />
         </div>
       )}
@@ -165,7 +146,7 @@ const WeatherDashboard = () => {
             No location selected
           </h3>
           <p className="text-gray-500 mb-4">
-            Enter a location above to see weather comparisons
+            Enter a location above to see weather forecasts
           </p>
         </div>
       )}

@@ -1,146 +1,168 @@
-
 import React from 'react';
-import { Sun, Cloud, CloudRain, Wind, CloudLightning, Snowflake, CloudDrizzle } from 'lucide-react';
+import { 
+  Sun, 
+  Cloud, 
+  CloudRain, 
+  CloudSnow, 
+  CloudLightning, 
+  CloudDrizzle,
+  Wind,
+  Droplets
+} from 'lucide-react';
 
 const WeatherCard = ({ title, weather }) => {
-  if (!weather) {
-    console.log('No weather data provided to WeatherCard');
-    return null;
-  }
+  if (!weather) return null;
 
-  const getWeatherStyles = (conditions, temperature, humidity) => {
-    const baseStyle = "rounded-lg shadow-sm p-6 transition-colors duration-300";
+  const getWeatherStyles = (conditions, temperature) => {
     const condition = conditions?.toLowerCase() || '';
-
-    // Heavy Rain or Storms
-    if (condition.includes('heavy rain') || condition.includes('storm')) {
+    
+    if (condition.includes('thunder') || condition.includes('storm')) {
       return {
-        containerStyle: `${baseStyle} bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600`,
-        textColor: "text-gray-100",
-        subTextColor: "text-gray-300",
-        labelColor: "text-gray-400"
+        container: 'bg-gradient-to-br from-purple-50 to-slate-100 border-purple-100',
+        text: 'text-purple-900',
+        subText: 'text-purple-800',
+        icon: 'text-purple-500'
       };
     }
-
-    // Light Rain or Drizzle
+    if (condition.includes('heavy rain')) {
+      return {
+        container: 'bg-gradient-to-br from-blue-100 to-slate-100 border-blue-200',
+        text: 'text-blue-900',
+        subText: 'text-blue-800',
+        icon: 'text-blue-600'
+      };
+    }
     if (condition.includes('rain') || condition.includes('drizzle')) {
       return {
-        containerStyle: `${baseStyle} bg-gradient-to-br from-slate-500 to-slate-600 border border-slate-400`,
-        textColor: "text-gray-100",
-        subTextColor: "text-gray-200",
-        labelColor: "text-gray-300"
+        container: 'bg-gradient-to-br from-blue-50 to-slate-100 border-blue-100',
+        text: 'text-blue-900',
+        subText: 'text-blue-800',
+        icon: 'text-blue-500'
       };
     }
-
-    // Cloudy
-    if (condition.includes('cloud') || condition.includes('overcast')) {
+    if (condition.includes('snow')) {
       return {
-        containerStyle: `${baseStyle} bg-gradient-to-br from-gray-200 to-slate-300 border border-gray-300`,
-        textColor: "text-gray-800",
-        subTextColor: "text-gray-700",
-        labelColor: "text-gray-600"
+        container: 'bg-gradient-to-br from-sky-50 to-indigo-50 border-sky-100',
+        text: 'text-sky-900',
+        subText: 'text-sky-800',
+        icon: 'text-sky-500'
       };
     }
-
-    // Clear and Hot (85°F+)
-    if (temperature >= 85 && (condition.includes('clear') || condition.includes('sun'))) {
+    if (condition.includes('cloud')) {
       return {
-        containerStyle: `${baseStyle} bg-gradient-to-br from-orange-400 to-amber-500 border border-orange-300`,
-        textColor: "text-white",
-        subTextColor: "text-orange-100",
-        labelColor: "text-orange-200"
+        container: 'bg-gradient-to-br from-gray-50 to-slate-100 border-gray-200',
+        text: 'text-gray-900',
+        subText: 'text-gray-700',
+        icon: 'text-gray-500'
       };
     }
-
-    // Clear and Warm
-    if (condition.includes('clear') || condition.includes('sun')) {
+    if (temperature >= 85) {
       return {
-        containerStyle: `${baseStyle} bg-gradient-to-br from-blue-400 to-cyan-500 border border-blue-300`,
-        textColor: "text-white",
-        subTextColor: "text-blue-100",
-        labelColor: "text-blue-200"
+        container: 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-100',
+        text: 'text-orange-900',
+        subText: 'text-orange-800',
+        icon: 'text-orange-500'
       };
     }
-
-    // High Humidity
-    if (humidity > 80) {
-      return {
-        containerStyle: `${baseStyle} bg-gradient-to-br from-emerald-500 to-teal-600 border border-emerald-400`,
-        textColor: "text-white",
-        subTextColor: "text-emerald-100",
-        labelColor: "text-emerald-200"
-      };
-    }
-
-    // Default - Mild conditions
+    // Default sunny/clear conditions
     return {
-      containerStyle: `${baseStyle} bg-gradient-to-br from-sky-400 to-indigo-500 border border-sky-300`,
-      textColor: "text-white",
-      subTextColor: "text-blue-100",
-      labelColor: "text-blue-200"
+      container: 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-100',
+      text: 'text-yellow-900',
+      subText: 'text-yellow-800',
+      icon: 'text-yellow-500'
     };
   };
 
-  const getWeatherIcon = (conditions) => {
+  const getWeatherIcon = (conditions, temperature) => {
     const condition = conditions?.toLowerCase() || '';
-    const iconClass = "w-10 h-10";
+    const iconClass = "w-8 h-8";
+    const styles = getWeatherStyles(conditions, temperature);
 
-    if (condition.includes('heavy rain') || condition.includes('storm')) {
-      return <CloudLightning className={`${iconClass} text-yellow-300`} />;
+    if (condition.includes('thunder') || condition.includes('storm')) {
+      return <CloudLightning className={`${iconClass} ${styles.icon}`} />;
     }
-    if (condition.includes('rain')) {
-      return <CloudRain className={`${iconClass} text-blue-200`} />;
+    if (condition.includes('heavy rain')) {
+      return <CloudRain className={`${iconClass} ${styles.icon}`} />;
     }
-    if (condition.includes('drizzle')) {
-      return <CloudDrizzle className={`${iconClass} text-blue-200`} />;
+    if (condition.includes('rain') || condition.includes('drizzle')) {
+      return <CloudDrizzle className={`${iconClass} ${styles.icon}`} />;
     }
     if (condition.includes('snow')) {
-      return <Snowflake className={`${iconClass} text-white`} />;
-    }
-    if (condition.includes('cloud')) {
-      return <Cloud className={`${iconClass} text-gray-200`} />;
+      return <CloudSnow className={`${iconClass} ${styles.icon}`} />;
     }
     if (condition.includes('wind')) {
-      return <Wind className={`${iconClass} text-gray-200`} />;
+      return <Wind className={`${iconClass} ${styles.icon}`} />;
     }
-    return <Sun className={`${iconClass} text-yellow-300`} />;
+    if (condition.includes('cloud')) {
+      return <Cloud className={`${iconClass} ${styles.icon}`} />;
+    }
+    return <Sun className={`${iconClass} ${styles.icon}`} />;
   };
 
-  const styles = getWeatherStyles(weather.conditions, weather.temperature, weather.humidity);
+  const getPrecipitationInfo = (conditions) => {
+    const condition = conditions?.toLowerCase() || '';
+    let precipProb = 0;
+
+    if (condition.includes('heavy rain') || condition.includes('storm')) {
+      precipProb = 90;
+    } else if (condition.includes('rain')) {
+      precipProb = 70;
+    } else if (condition.includes('drizzle')) {
+      precipProb = 50;
+    } else if (condition.includes('cloud')) {
+      precipProb = 30;
+    }
+
+    return {
+      probability: precipProb,
+      style: precipProb >= 70 ? 'bg-white/50 backdrop-blur-sm' : 'bg-white/30 backdrop-blur-sm'
+    };
+  };
+
+  const styles = getWeatherStyles(weather.conditions, weather.temperature);
+  const precipInfo = getPrecipitationInfo(weather.conditions);
 
   return (
-    <div className={styles.containerStyle}>
+    <div className={`backdrop-blur-sm rounded-lg shadow-sm p-6 border transition-all ${styles.container}`}>
       <div className="flex justify-between items-start mb-4">
-        <h3 className={`text-lg font-semibold ${styles.textColor}`}>
-          {title}
-        </h3>
-        {getWeatherIcon(weather.conditions)}
+        <h3 className={`text-lg font-semibold ${styles.text}`}>{title}</h3>
+        {getWeatherIcon(weather.conditions, weather.temperature)}
       </div>
       
       <div className="space-y-4">
         <div>
-          <div className={`text-4xl font-bold ${styles.textColor}`}>
+          <div className={`text-3xl font-bold ${styles.text}`}>
             {Math.round(weather.temperature)}°F
           </div>
-          <div className={`text-lg ${styles.subTextColor}`}>
-            {weather.conditions || 'Clear'}
+          <div className={styles.subText}>
+            {weather.conditions}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className={`text-sm ${styles.labelColor}`}>Humidity</div>
-            <div className={`text-lg font-medium ${styles.subTextColor}`}>
+            <div className={`text-sm ${styles.subText} opacity-80`}>Humidity</div>
+            <div className={`text-lg font-medium ${styles.text}`}>
               {weather.humidity}%
             </div>
           </div>
           <div>
-            <div className={`text-sm ${styles.labelColor}`}>Wind</div>
-            <div className={`text-lg font-medium ${styles.subTextColor}`}>
+            <div className={`text-sm ${styles.subText} opacity-80`}>Wind</div>
+            <div className={`text-lg font-medium ${styles.text}`}>
               {weather.windSpeed} mph
             </div>
           </div>
         </div>
+
+        {/* Precipitation Probability */}
+        {precipInfo.probability > 0 && (
+          <div className={`flex items-center gap-2 p-3 rounded-lg ${precipInfo.style}`}>
+            <Droplets className={`w-4 h-4 ${styles.icon}`} />
+            <span className={`text-sm font-medium ${styles.text}`}>
+              {precipInfo.probability}% chance of rain
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
