@@ -93,14 +93,14 @@ const WeatherChart = () => {
   const customXAxisTicks = [0, 12, 24];
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-6">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-4 md:p-6">
       <h2 className="text-xl font-semibold text-gray-800 mb-6">
-        24-Hour Forecast Comparison
+        Forecast Comparison
       </h2>
       
-      <div className="flex gap-6">
-        {/* Chart Section - 75% */}
-        <div className="w-3/4 h-[400px]">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+        {/* Chart Section */}
+        <div className="w-full md:w-3/4 h-[300px] md:h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
@@ -245,8 +245,8 @@ const WeatherChart = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Legend Panel - 25% */}
-        <div className="w-1/4 bg-gray-50/50 backdrop-blur-sm rounded-lg p-4">
+        {/* Legend Panel */}
+        <div className="w-full md:w-1/4 bg-gray-50/50 backdrop-blur-sm rounded-lg p-4">
           {/* This Friday Section */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4">
