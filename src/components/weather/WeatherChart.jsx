@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   LineChart,
   Line,
@@ -11,9 +11,60 @@ import {
 } from 'recharts';
 import { useWeather } from '../../contexts/WeatherContext';
 
+const LegendPanel = ({ activeLine, legendItems }) => {
+  return (
+    <div className="h-full p-4 bg-white rounded-lg border-l border-gray-200">
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-gray-500 mb-4">Legend</h3>
+        {legendItems.map((item, index) => (
+          <div key={index} className="flex items-center mb-3">
+            <span 
+              className="w-3 h-3 mr-2"
+              style={{ 
+                backgroundColor: item.color,
+                borderRadius: item.type === 'humidity' ? '50%' : '0'
+              }}
+            />
+            <span className="text-sm text-gray-600">{item.name}</span>
+          </div>
+        ))}
+      </div>
+
+      {activeLine && (
+        <div>
+          <h3 className="text-sm font-medium text-gray-500 mb-4">Details</h3>
+          <div className="space-y-2">
+            <div className="text-sm">
+              <span className="text-gray-500">Hour: </span>
+              <span className="font-medium text-gray-700">{activeLine.hour}</span>
+            </div>
+            <div className="text-sm">
+              <span className="text-gray-500">This Friday: </span>
+              <span className="font-medium text-gray-700">{activeLine.currentTemp}°F</span>
+            </div>
+            <div className="text-sm">
+              <span className="text-gray-500">Next Friday: </span>
+              <span className="font-medium text-gray-700">{activeLine.nextWeekTemp}°F</span>
+            </div>
+            <div className="text-sm">
+              <span className="text-gray-500">Current Humidity: </span>
+              <span className="font-medium text-gray-700">{activeLine.currentHumidity}%</span>
+            </div>
+            <div className="text-sm">
+              <span className="text-gray-500">Next Week Humidity: </span>
+              <span className="font-medium text-gray-700">{activeLine.nextWeekHumidity}%</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const WeatherChart = () => {
   const { state } = useWeather();
   const { currentWeather, nextWeekWeather, loading } = state;
+  const [activeLine, setActiveLine] = useState(null);
 
   if (loading) {
     return (
@@ -27,9 +78,7 @@ const WeatherChart = () => {
     return null;
   }
 
-  // Process data for the chart
   const processHourlyData = () => {
-    // Ensure we have equal number of hours for comparison
     const hours = Math.min(
       currentWeather.hourlyForecast.length,
       nextWeekWeather.hourlyForecast.length
@@ -46,92 +95,118 @@ const WeatherChart = () => {
 
   const data = processHourlyData();
 
+  const legendItems = [
+    { name: 'This Friday Temp', color: '#0EA5E9', type: 'temperature' },
+    { name: 'Next Friday Temp', color: '#8B5CF6', type: 'temperature' },
+    { name: 'This Friday Humidity', color: '#F97316', type: 'humidity' },
+    { name: 'Next Friday Humidity', color: '#22C55E', type: 'humidity' }
+  ];
+
+  const handleMouseMove = (e) => {
+    if (e.activePayload) {
+      setActiveLine(e.activePayload[0].payload);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setActiveLine(null);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <h2 className="text-xl font-semibold text-gray-800 mb-6">
         24-Hour Forecast Comparison
       </h2>
-      <div className="h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-            <XAxis 
-              dataKey="hour" 
-              tick={{ fill: '#64748B' }}
-              label={{ value: 'Hour', position: 'bottom', fill: '#64748B' }}
-            />
-            <YAxis 
-              yAxisId="temp"
-              tick={{ fill: '#64748B' }}
-              label={{ 
-                value: 'Temperature (°F)', 
-                angle: -90, 
-                position: 'insideLeft',
-                fill: '#64748B'
-              }}
-            />
-            <YAxis 
-              yAxisId="humidity"
-              orientation="right"
-              tick={{ fill: '#64748B' }}
-              label={{ 
-                value: 'Humidity (%)', 
-                angle: 90, 
-                position: 'insideRight',
-                fill: '#64748B'
-              }}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                border: '1px solid #E2E8F0',
-                borderRadius: '6px'
-              }}
-            />
-            <Legend />
-            <Line
-              yAxisId="temp"
-              type="monotone"
-              dataKey="currentTemp"
-              stroke="#0EA5E9"
-              name="This Friday Temp"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              yAxisId="temp"
-              type="monotone"
-              dataKey="nextWeekTemp"
-              stroke="#8B5CF6"
-              name="Next Friday Temp"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              yAxisId="humidity"
-              type="monotone"
-              dataKey="currentHumidity"
-              stroke="#F97316"
-              name="This Friday Humidity"
-              strokeWidth={2}
-              dot={false}
-              strokeDasharray="5 5"
-            />
-            <Line
-              yAxisId="humidity"
-              type="monotone"
-              dataKey="nextWeekHumidity"
-              stroke="#22C55E"
-              name="Next Friday Humidity"
-              strokeWidth={2}
-              dot={false}
-              strokeDasharray="5 5"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="flex">
+        <div className="w-3/4 h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+              <XAxis 
+                dataKey="hour" 
+                tick={{ fill: '#64748B' }}
+                label={{ 
+                  value: 'Hour', 
+                  position: 'bottom', 
+                  fill: '#64748B',
+                  offset: -10
+                }}
+              />
+              <YAxis 
+                yAxisId="temp"
+                tick={{ fill: '#64748B' }}
+                label={{ 
+                  value: 'Temperature (°F)', 
+                  angle: -90, 
+                  position: 'insideLeft',
+                  fill: '#64748B',
+                  offset: 10
+                }}
+              />
+              <YAxis 
+                yAxisId="humidity"
+                orientation="right"
+                tick={{ fill: '#64748B' }}
+                label={{ 
+                  value: 'Humidity (%)', 
+                  angle: 90, 
+                  position: 'insideRight',
+                  fill: '#64748B',
+                  offset: 10
+                }}
+              />
+              <Line
+                yAxisId="temp"
+                type="monotone"
+                dataKey="currentTemp"
+                stroke="#0EA5E9"
+                name="This Friday Temp"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                yAxisId="temp"
+                type="monotone"
+                dataKey="nextWeekTemp"
+                stroke="#8B5CF6"
+                name="Next Friday Temp"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                yAxisId="humidity"
+                type="monotone"
+                dataKey="currentHumidity"
+                stroke="#F97316"
+                name="This Friday Humidity"
+                strokeWidth={2}
+                dot={false}
+                strokeDasharray="5 5"
+              />
+              <Line
+                yAxisId="humidity"
+                type="monotone"
+                dataKey="nextWeekHumidity"
+                stroke="#22C55E"
+                name="Next Friday Humidity"
+                strokeWidth={2}
+                dot={false}
+                strokeDasharray="5 5"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="w-1/4 pl-4">
+          <LegendPanel 
+            activeLine={activeLine}
+            legendItems={legendItems}
+          />
+        </div>
       </div>
     </div>
   );

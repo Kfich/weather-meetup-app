@@ -3,6 +3,7 @@ import { AlertCircle, MapPin, RefreshCw } from 'lucide-react';
 import LocationPicker from '../location/LocationPicker';
 import WeatherComparison from './WeatherComparison';
 import WeatherChart from './WeatherChart';
+import WeatherAdvice from './WeatherAdvice';
 import { useWeather } from '../../contexts/WeatherContext';
 import { useGeolocation } from '../../hooks/useGeolocation';
 
@@ -10,15 +11,14 @@ const WeatherDashboard = () => {
   const { state, dispatch } = useWeather();
   const { location, loading, error } = state;
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { getLocation, loading: geoLoading } = useGeolocation();
+  const { getLocation } = useGeolocation();
 
   const handleRefresh = async () => {
     if (location) {
       setIsRefreshing(true);
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        // Re-fetch weather data
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
         dispatch({ type: 'REFRESH_WEATHER' });
       } finally {
         setIsRefreshing(false);
@@ -40,7 +40,7 @@ const WeatherDashboard = () => {
     } catch (error) {
       dispatch({
         type: 'SET_ERROR',
-        payload: error
+        payload: error.message
       });
     }
   };
@@ -55,12 +55,12 @@ const WeatherDashboard = () => {
           </h2>
           <button
             onClick={handleUseCurrentLocation}
-            disabled={geoLoading}
+            disabled={loading}
             className={`flex items-center text-sm text-primary-600 hover:text-primary-700
-              ${geoLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <MapPin className="w-4 h-4 mr-1" />
-            {geoLoading ? 'Getting location...' : 'Use my location'}
+            Use my location
           </button>
         </div>
         <LocationPicker />
@@ -80,14 +80,14 @@ const WeatherDashboard = () => {
       )}
 
       {/* Weather Content */}
-      {location && (
+      {location && !loading && !error && (
         <div className="space-y-6">
           {/* Location and Refresh Section */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MapPin className="w-5 h-5 text-gray-400 mr-2" />
               <h2 className="text-xl font-semibold text-gray-800">
-                {location}
+                Current Location: <span color='red'> {location} </span>
               </h2>
             </div>
             <button
@@ -100,6 +100,9 @@ const WeatherDashboard = () => {
               Refresh
             </button>
           </div>
+
+          {/* Weather Advice */}
+          <WeatherAdvice />
 
           {/* Weather Comparison Cards */}
           <div className="bg-white rounded-xl shadow-sm p-6">
