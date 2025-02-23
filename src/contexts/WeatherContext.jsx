@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 const WeatherContext = createContext();
 
@@ -10,7 +10,7 @@ const initialState = {
   error: null
 };
 
-function weatherReducer(state, action) {
+const weatherReducer = (state, action) => {
   switch (action.type) {
     case 'SET_LOCATION':
       return {
@@ -36,34 +36,32 @@ function weatherReducer(state, action) {
         error: action.payload,
         loading: false
       };
-    case 'REFRESH_WEATHER':
-      return {
-        ...state,
-        currentWeather: null,
-        nextWeekWeather: null,
-        error: null
-      };
-    case 'RESET':
+    case 'RESET_STATE':
       return initialState;
     default:
       return state;
   }
-}
+};
 
-export function WeatherProvider({ children }) {
+export const WeatherProvider = ({ children }) => {
   const [state, dispatch] = useReducer(weatherReducer, initialState);
+
+  // Reset state on page load/refresh
+  useEffect(() => {
+    dispatch({ type: 'RESET_STATE' });
+  }, []);
 
   return (
     <WeatherContext.Provider value={{ state, dispatch }}>
       {children}
     </WeatherContext.Provider>
   );
-}
+};
 
-export function useWeather() {
+export const useWeather = () => {
   const context = useContext(WeatherContext);
   if (!context) {
     throw new Error('useWeather must be used within a WeatherProvider');
   }
   return context;
-}
+};

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle, MapPin, RefreshCw } from 'lucide-react';
 import LocationPicker from '../location/LocationPicker';
 import WeatherComparison from './WeatherComparison';
@@ -13,13 +13,27 @@ const WeatherDashboard = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { getLocation } = useGeolocation();
 
+  // Reset state on component mount
+  useEffect(() => {
+    dispatch({ type: 'RESET_STATE' });
+  }, [dispatch]);
+
   const handleRefresh = async () => {
     if (location) {
       setIsRefreshing(true);
+      dispatch({ type: 'RESET_STATE' });
+      
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        dispatch({ type: 'REFRESH_WEATHER' });
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
+        
+        // Re-fetch location data
+        dispatch({ type: 'SET_LOCATION', payload: location });
+      } catch (error) {
+        dispatch({
+          type: 'SET_ERROR',
+          payload: 'Failed to refresh weather data'
+        });
       } finally {
         setIsRefreshing(false);
         dispatch({ type: 'SET_LOADING', payload: false });
@@ -29,6 +43,10 @@ const WeatherDashboard = () => {
 
   const handleUseCurrentLocation = async () => {
     try {
+      // Reset state before fetching new location
+      dispatch({ type: 'RESET_STATE' });
+      dispatch({ type: 'SET_LOADING', payload: true });
+
       const position = await getLocation();
       if (position) {
         const locationString = `${position.latitude.toFixed(4)},${position.longitude.toFixed(4)}`;
@@ -42,8 +60,22 @@ const WeatherDashboard = () => {
         type: 'SET_ERROR',
         payload: error.message
       });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
+
+  // Reset on beforeunload event
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      dispatch({ type: 'RESET_STATE' });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [dispatch]);
 
   return (
     <div className="space-y-6">
