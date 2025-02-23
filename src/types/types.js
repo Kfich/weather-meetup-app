@@ -1,4 +1,3 @@
-
 // src/types/types.js
 /**
  * @typedef {Object} WeatherData

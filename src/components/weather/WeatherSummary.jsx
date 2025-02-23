@@ -7,15 +7,16 @@ import {
   CloudLightning, 
   CloudDrizzle,
   Wind,
-  Thermometer
+  Thermometer,
+  MapPin
 } from 'lucide-react';
 import { useWeather } from '../../contexts/WeatherContext';
 
 const WeatherSummary = () => {
-  const { state } = useWeather();
-  const { currentWeather } = state;
+  const { state: weatherState } = useWeather();
+  const { currentWeather, location } = weatherState;
 
-  if (!currentWeather) return null;
+  if (!currentWeather || !location) return null;
 
   const getWeatherIcon = (conditions, temperature) => {
     const condition = conditions?.toLowerCase() || '';
@@ -116,23 +117,35 @@ const WeatherSummary = () => {
     currentWeather.temperature
   );
 
+  // Get location components from the full address
+  const locationParts = location.fullAddress?.split(',').map(part => part.trim()) || [];
+  const city = locationParts[0] || '';
+  const state = locationParts[1] || '';
+  const country = locationParts[2] || '';
+
   return (
-    <div className={`${backgroundColor} rounded-xl border p-4 shadow-sm flex items-center gap-4`}>
-      {getWeatherIcon(currentWeather.conditions, currentWeather.temperature)}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-800">{summary}</h3>
-        <div className="flex items-center gap-4 mt-1">
-          <span className="text-gray-600">
-            {Math.round(currentWeather.temperature)}°F
-          </span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-600">
-            {Math.round(currentWeather.humidity)}% humidity
-          </span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-600">
-            {Math.round(currentWeather.windSpeed)} mph wind
-          </span>
+    <div className={`${backgroundColor} rounded-xl border p-6 shadow-sm`}>
+      {/* Location Section */}
+      <div className="flex items-center gap-4 mb-4">
+      </div>
+      {/* Weather Section */}
+      <div className="flex items-center gap-4">
+        {getWeatherIcon(currentWeather.conditions, currentWeather.temperature)}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800">{summary}</h3>
+          <div className="flex items-center gap-4 mt-1">
+            <span className="text-gray-600 font-medium">
+              {Math.round(currentWeather.temperature)}°F
+            </span>
+            <span className="text-gray-400">|</span>
+            <span className="text-gray-600">
+              {Math.round(currentWeather.humidity)}% humidity
+            </span>
+            <span className="text-gray-400">|</span>
+            <span className="text-gray-600">
+              {Math.round(currentWeather.windSpeed)} mph wind
+            </span>
+          </div>
         </div>
       </div>
     </div>

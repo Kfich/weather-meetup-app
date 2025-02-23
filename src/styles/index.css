@@ -6,7 +6,7 @@
   .btn {
     @apply px-4 py-2 rounded-md font-medium transition-colors;
   }
-  
+
   .btn-primary {
     @apply bg-primary-600 text-white hover:bg-primary-700;
   }

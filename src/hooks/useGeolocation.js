@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export const useGeolocation = () => {
   const [location, setLocation] = useState(null);
@@ -8,7 +8,7 @@ export const useGeolocation = () => {
   const getLocation = () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        const error = 'Geolocation is not supported by your browser';
+        const error = "Geolocation is not supported by your browser";
         setError(error);
         reject(error);
         return;
@@ -21,7 +21,7 @@ export const useGeolocation = () => {
         (position) => {
           const locationData = {
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            longitude: position.coords.longitude,
           };
           setLocation(locationData);
           setLoading(false);
@@ -36,8 +36,8 @@ export const useGeolocation = () => {
         {
           enableHighAccuracy: true,
           timeout: 5000,
-          maximumAge: 0
-        }
+          maximumAge: 0,
+        },
       );
     });
   };
@@ -59,6 +59,6 @@ export const useGeolocation = () => {
     location,
     error,
     loading,
-    getLocation
+    getLocation,
   };
 };

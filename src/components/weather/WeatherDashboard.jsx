@@ -87,7 +87,7 @@ const WeatherDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Select Location
             </h2>
-            <button
+            {/* <button
               onClick={handleUseCurrentLocation}
               disabled={loading}
               className={`flex items-center text-sm text-primary-600 hover:text-primary-700
@@ -95,7 +95,7 @@ const WeatherDashboard = () => {
             >
               <MapPin className="w-4 h-4 mr-1" />
               Use my location
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="p-6">

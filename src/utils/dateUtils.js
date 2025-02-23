@@ -1,4 +1,4 @@
-import { format, addDays, startOfDay, endOfDay } from 'date-fns';
+import { format, addDays, startOfDay, endOfDay } from "date-fns";
 
 export const dateUtils = {
   getNextFriday: (fromDate = new Date()) => {
@@ -7,12 +7,12 @@ export const dateUtils = {
     return addDays(fromDate, daysUntilFriday);
   },
 
-  formatDateTime: (date) => format(date, 'yyyy-MM-dd'),
-  formatDisplayDate: (date) => format(date, 'MMM d, yyyy'),
-  formatDisplayTime: (date) => format(date, 'h:mm a'),
+  formatDateTime: (date) => format(date, "yyyy-MM-dd"),
+  formatDisplayDate: (date) => format(date, "MMM d, yyyy"),
+  formatDisplayTime: (date) => format(date, "h:mm a"),
 
   getDayBoundaries: (date) => ({
     start: startOfDay(date),
-    end: endOfDay(date)
-  })
+    end: endOfDay(date),
+  }),
 };
