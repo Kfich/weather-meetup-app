@@ -1,0 +1,48 @@
+{
+    "short_name": "Weather Meetup",
+    "name": "Weather Meetup Planner",
+    "description": "Plan outdoor meetups with confidence using weather forecasts",
+    "icons": [
+      {
+        "src": "favicon.ico",
+        "sizes": "64x64 32x32 24x24 16x16",
+        "type": "image/x-icon"
+      },
+      {
+        "src": "logo.svg",
+        "type": "image/svg",
+        "sizes": "192x192",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "logo.svg",
+        "type": "image/svg",
+        "sizes": "512x512",
+        "purpose": "any maskable"
+      }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#0ea5e9",
+    "background_color": "#ffffff",
+    "orientation": "portrait",
+    "categories": ["weather", "planning", "lifestyle"],
+    "prefer_related_applications": false,
+    "scope": "/",
+    "shortcuts": [
+      {
+        "name": "Current Weather",
+        "short_name": "Weather",
+        "description": "View current weather conditions",
+        "url": "/current",
+        "icons": [{ "src": "weather-icon.svg", "sizes": "192x192" }]
+      },
+      {
+        "name": "Weekly Forecast",
+        "short_name": "Forecast",
+        "description": "View weekly weather forecast",
+        "url": "/forecast",
+        "icons": [{ "src": "forecast-icon.svg", "sizes": "192x192" }]
+      }
+    ]
+  }

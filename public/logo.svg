@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="248" fill="#0ea5e9" stroke="#0284c7" stroke-width="16"/>
+  
+  <!-- Sun -->
+  <circle cx="256" cy="200" r="64" fill="#fbbf24"/>
+  <g stroke="#fbbf24" stroke-linecap="round" stroke-width="12">
+    <line x1="256" y1="96" x2="256" y2="120"/>
+    <line x1="256" y1="280" x2="256" y2="304"/>
+    <line x1="152" y1="200" x2="176" y2="200"/>
+    <line x1="336" y1="200" x2="360" y2="200"/>
+    <line x1="184" y1="128" x2="201" y2="145"/>
+    <line x1="311" y1="255" x2="328" y2="272"/>
+    <line x1="184" y1="272" x2="201" y2="255"/>
+    <line x1="311" y1="145" x2="328" y2="128"/>
+  </g>
+
+  <!-- Cloud -->
+  <path d="M352 296c0-26.5-21.5-48-48-48-4.6 0-9.1.6-13.3 1.8C280.6 223.6 256.1 204 227 204c-36.9 0-67 30.1-67 67 0 1.5.1 2.9.2 4.3C160.1 275.1 160 275 160 275c-26.5 0-48 21.5-48 48s21.5 48 48 48h144c26.5 0 48-21.5 48-48z" 
+        fill="white" 
+        stroke="#e2e8f0" 
+        stroke-width="8"/>
+</svg>
