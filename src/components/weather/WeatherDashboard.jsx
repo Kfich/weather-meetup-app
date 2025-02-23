@@ -48,27 +48,31 @@ const WeatherDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Location Selection Section */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Select Location
-          </h2>
-          <button
-            onClick={handleUseCurrentLocation}
-            disabled={loading}
-            className={`flex items-center text-sm text-primary-600 hover:text-primary-700
-              ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <MapPin className="w-4 h-4 mr-1" />
-            Use my location
-          </button>
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Select Location
+            </h2>
+            <button
+              onClick={handleUseCurrentLocation}
+              disabled={loading}
+              className={`flex items-center text-sm text-primary-600 hover:text-primary-700
+                ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <MapPin className="w-4 h-4 mr-1" />
+              Use my location
+            </button>
+          </div>
         </div>
-        <LocationPicker />
+        <div className="p-6">
+          <LocationPicker />
+        </div>
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start">
+        <div className="bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl p-4 flex items-start">
           <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
           <div>
             <h3 className="text-sm font-medium text-red-800">
@@ -82,12 +86,11 @@ const WeatherDashboard = () => {
       {/* Weather Content */}
       {location && !loading && !error && (
         <div className="space-y-6">
-          {/* Location and Refresh Section */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-4">
             <div className="flex items-center">
               <MapPin className="w-5 h-5 text-gray-400 mr-2" />
               <h2 className="text-xl font-semibold text-gray-800">
-                Current Location: <span color='red'> {location} </span>
+                {location}
               </h2>
             </div>
             <button
@@ -101,25 +104,15 @@ const WeatherDashboard = () => {
             </button>
           </div>
 
-          {/* Weather Advice */}
           <WeatherAdvice />
-
-          {/* Weather Comparison Cards */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">
-              Friday Weather Comparison
-            </h2>
-            <WeatherComparison />
-          </div>
-
-          {/* Weather Chart */}
+          <WeatherComparison />
           <WeatherChart />
         </div>
       )}
 
       {/* Empty State */}
       {!location && !loading && !error && (
-        <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+        <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-xl shadow-md">
           <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             No location selected
