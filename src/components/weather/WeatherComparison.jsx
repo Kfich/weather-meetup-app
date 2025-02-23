@@ -1,5 +1,4 @@
 import React from 'react';
-import { format, addDays } from 'date-fns';
 import { useWeather } from '../../contexts/WeatherContext';
 import WeatherCard from './WeatherCard';
 
@@ -7,34 +6,32 @@ const WeatherComparison = () => {
   const { state } = useWeather();
   const { currentWeather, nextWeekWeather, loading } = state;
 
+  console.log('WeatherComparison state:', { currentWeather, nextWeekWeather, loading });
+
   if (loading) {
     return (
-      <div className="animate-pulse">
-        <div className="h-48 bg-gray-200 rounded-lg"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[1, 2].map((i) => (
+          <div key={i} className="animate-pulse">
+            <div className="h-48 bg-gray-200 rounded-lg"></div>
+          </div>
+        ))}
       </div>
     );
   }
 
   if (!currentWeather || !nextWeekWeather) {
-    return null;
+    return (
+      <div className="text-center py-4 text-gray-500">
+        No weather data available
+      </div>
+    );
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-4">This Friday</h2>
-        <WeatherCard
-          date={format(new Date(), 'MMM d')}
-          weather={currentWeather}
-        />
-      </div>
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Next Friday</h2>
-        <WeatherCard
-          date={format(addDays(new Date(), 7), 'MMM d')}
-          weather={nextWeekWeather}
-        />
-      </div>
+      <WeatherCard title="This Friday" weather={currentWeather} />
+      <WeatherCard title="Next Friday" weather={nextWeekWeather} />
     </div>
   );
 };

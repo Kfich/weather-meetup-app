@@ -12,46 +12,28 @@ class WeatherAPIError extends Error {
   }
 }
 
-const validateWeatherData = (data) => {
-  if (!data) throw new Error('No data received from API');
-  if (!Array.isArray(data.days)) throw new Error('Weather data days not found');
-  if (data.days.length === 0) throw new Error('No weather data days available');
+const processHourlyData = (hours) => {
+  if (!Array.isArray(hours)) return [];
   
-  return true;
+  return hours.map(hour => ({
+    time: hour.datetime,
+    temperature: Math.round(hour.temp),
+    humidity: Math.round(hour.humidity),
+    windSpeed: Math.round(hour.windspeed),
+    conditions: hour.conditions || 'Unknown'
+  }));
 };
 
 const processDay = (day) => {
-  if (!day) {
-    console.error('Invalid day data:', day);
-    throw new Error('Invalid day data received');
-  }
+  if (!day) return null;
 
   return {
-    date: day.datetime || format(new Date(), 'yyyy-MM-dd'),
-    temperature: Math.round(day.temp || 0),
-    humidity: Math.round(day.humidity || 0),
-    windSpeed: Math.round(day.windspeed || 0),
+    temperature: Math.round(day.temp),
+    humidity: Math.round(day.humidity),
+    windSpeed: Math.round(day.windspeed),
     conditions: day.conditions || 'Unknown',
-    icon: day.icon || 'unknown',
-    description: getWeatherDescription(day.temp || 0, day.humidity || 0),
-    hourlyForecast: Array.isArray(day.hours) 
-      ? day.hours.map(hour => ({
-          time: hour.datetime || '',
-          temperature: Math.round(hour.temp || 0),
-          humidity: Math.round(hour.humidity || 0),
-          windSpeed: Math.round(hour.windspeed || 0),
-          conditions: hour.conditions || 'Unknown'
-        }))
-      : []
+    hourlyForecast: processHourlyData(day.hours)
   };
-};
-
-const getWeatherDescription = (temp, humidity) => {
-  if (temp >= 60 && temp <= 75) return "Perfect for a meetup!";
-  if (temp > 75) return "It might be hot, bring water!";
-  if (temp < 60) return "It might be chilly, bring layers!";
-  if (humidity > 75) return "High humidity, plan indoor activities";
-  return "Check weather details";
 };
 
 export const weatherApi = {
@@ -63,52 +45,59 @@ export const weatherApi = {
     try {
       // Calculate dates for this Friday and next Friday
       const today = new Date();
-      const thisWeek = new Date();
-      const nextWeek = addDays(today, 7);
+      const daysUntilFriday = (5 - today.getDay() + 7) % 7;
+      const thisFriday = addDays(today, daysUntilFriday);
+      const nextFriday = addDays(thisFriday, 7);
 
-      // Set to next Friday if we're past Friday this week
-      const currentDay = today.getDay();
-      const daysUntilFriday = (5 - currentDay + 7) % 7;
-      thisWeek.setDate(today.getDate() + daysUntilFriday);
+      const startDate = format(thisFriday, 'yyyy-MM-dd');
+      const endDate = format(nextFriday, 'yyyy-MM-dd');
 
-      const encodedLocation = encodeURIComponent(location);
-      const startDate = format(thisWeek, 'yyyy-MM-dd');
-      const endDate = format(nextWeek, 'yyyy-MM-dd');
-
-      console.log('Fetching weather data:', {
-        location: encodedLocation,
+      console.log('Fetching weather for:', {
+        location,
         startDate,
-        endDate,
-        url: `${BASE_URL}/${encodedLocation}/${startDate}/${endDate}`
+        endDate
       });
 
       const response = await axios.get(
-        `${BASE_URL}/${encodedLocation}/${startDate}/${endDate}`,
+        `${BASE_URL}/${encodeURIComponent(location)}/${startDate}/${endDate}`,
         {
           params: {
             unitGroup: 'us',
-            include: 'hours,current',
+            include: 'hours',
             key: API_KEY,
-            contentType: 'json'
+            contentType: 'json',
+            elements: 'datetime,temp,humidity,windspeed,conditions,hours'
           }
         }
       );
 
+      if (!response.data || !response.data.days) {
+        throw new WeatherAPIError('Invalid response from weather service', 500);
+      }
+
       console.log('Raw API Response:', response.data);
 
-      // Validate the response data
-      validateWeatherData(response.data);
+      // Find the correct days in the response
+      const currentDayData = response.data.days.find(day => 
+        day.datetime === startDate
+      );
+      
+      const nextWeekDayData = response.data.days.find(day => 
+        day.datetime === endDate
+      );
 
-      // Process the data
-      const weatherData = {
+      if (!currentDayData || !nextWeekDayData) {
+        throw new WeatherAPIError('Could not find weather data for the requested dates', 404);
+      }
+
+      const processedData = {
         location: response.data.resolvedAddress || location,
-        timezone: response.data.timezone || 'Unknown',
-        currentWeather: processDay(response.data.days[0]),
-        nextWeekWeather: processDay(response.data.days[7] || response.data.days[response.data.days.length - 1])
+        currentWeather: processDay(currentDayData),
+        nextWeekWeather: processDay(nextWeekDayData)
       };
 
-      console.log('Processed Weather Data:', weatherData);
-      return weatherData;
+      console.log('Processed Weather Data:', processedData);
+      return processedData;
 
     } catch (error) {
       console.error('Weather API Error:', {

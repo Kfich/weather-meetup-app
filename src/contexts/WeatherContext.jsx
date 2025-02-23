@@ -10,26 +10,47 @@ const initialState = {
   error: null
 };
 
-const weatherReducer = (state, action) => {
+function weatherReducer(state, action) {
   switch (action.type) {
     case 'SET_LOCATION':
-      return { ...state, location: action.payload };
+      return {
+        ...state,
+        location: action.payload,
+        error: null
+      };
     case 'SET_WEATHER_DATA':
       return {
         ...state,
-        currentWeather: action.payload.current,
-        nextWeekWeather: action.payload.nextWeek
+        currentWeather: action.payload.currentWeather,
+        nextWeekWeather: action.payload.nextWeekWeather,
+        error: null
       };
     case 'SET_LOADING':
-      return { ...state, loading: action.payload };
+      return {
+        ...state,
+        loading: action.payload
+      };
     case 'SET_ERROR':
-      return { ...state, error: action.payload };
+      return {
+        ...state,
+        error: action.payload,
+        loading: false
+      };
+    case 'REFRESH_WEATHER':
+      return {
+        ...state,
+        currentWeather: null,
+        nextWeekWeather: null,
+        error: null
+      };
+    case 'RESET':
+      return initialState;
     default:
       return state;
   }
-};
+}
 
-export const WeatherProvider = ({ children }) => {
+export function WeatherProvider({ children }) {
   const [state, dispatch] = useReducer(weatherReducer, initialState);
 
   return (
@@ -37,12 +58,12 @@ export const WeatherProvider = ({ children }) => {
       {children}
     </WeatherContext.Provider>
   );
-};
+}
 
-export const useWeather = () => {
+export function useWeather() {
   const context = useContext(WeatherContext);
   if (!context) {
     throw new Error('useWeather must be used within a WeatherProvider');
   }
   return context;
-};
+}
