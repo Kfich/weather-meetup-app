@@ -81,5 +81,3 @@ Distributed under the MIT License
 
 ## Contact
 Kevin Fich - kfich7@gmail.com
-
-Project Link: [https://github.com/yourusername/weather-comparison-app](https://github.com/yourusername/weather-comparison-app)
