@@ -4,6 +4,7 @@ import LocationPicker from '../location/LocationPicker';
 import WeatherComparison from './WeatherComparison';
 import WeatherChart from './WeatherChart';
 import WeatherAdvice from './WeatherAdvice';
+import WeatherSummary from './WeatherSummary';
 import { useWeather } from '../../contexts/WeatherContext';
 import { useGeolocation } from '../../hooks/useGeolocation';
 
@@ -118,7 +119,8 @@ const WeatherDashboard = () => {
       {/* Weather Content */}
       {location && !loading && !error && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-4">
+          {/* Location and Refresh Section */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MapPin className="w-5 h-5 text-gray-400 mr-2" />
               <h2 className="text-xl font-semibold text-gray-800">
@@ -136,8 +138,21 @@ const WeatherDashboard = () => {
             </button>
           </div>
 
+          {/* Weather Summary */}
+          <WeatherSummary />
+
+          {/* Weather Advice */}
           <WeatherAdvice />
-          <WeatherComparison />
+
+          {/* Weather Comparison Cards */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">
+              Friday Weather Comparison
+            </h2>
+            <WeatherComparison />
+          </div>
+
+          {/* Weather Chart */}
           <WeatherChart />
         </div>
       )}
