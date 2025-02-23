@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle, MapPin, RefreshCw } from 'lucide-react';
 import LocationPicker from '../location/LocationPicker';
 import WeatherComparison from './WeatherComparison';
@@ -8,6 +8,7 @@ import WeatherSummary from './WeatherSummary';
 import WeekSelector from '../date/WeekSelector';
 import { useWeather } from '../../contexts/WeatherContext';
 import { useGeolocation } from '../../hooks/useGeolocation';
+import { weatherApi } from '../../services/api/weatherApi';
 
 const WeatherDashboard = () => {
   const { state, dispatch } = useWeather();
@@ -16,25 +17,45 @@ const WeatherDashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { getLocation } = useGeolocation();
 
-  const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
-    // Trigger a new weather fetch with the updated date
-    if (location) {
-      handleRefresh();
+  // Fetch weather data for the given location and date
+  const fetchWeatherData = async (loc, date) => {
+    if (!loc) return;
+
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const data = await weatherApi.fetchWeatherData(loc, date);
+      dispatch({ 
+        type: 'SET_WEATHER_DATA',
+        payload: data
+      });
+    } catch (error) {
+      dispatch({
+        type: 'SET_ERROR',
+        payload: error.message
+      });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
+  };
+
+  // Fetch weather data when location or date changes
+  useEffect(() => {
+    if (location) {
+      fetchWeatherData(location, selectedDate);
+    }
+  }, [location, selectedDate]);
+
+  // Handle date change from WeekSelector
+  const handleDateChange = (newDate) => {
+    console.log('Date changed:', newDate);
+    setSelectedDate(newDate);
   };
 
   const handleRefresh = async () => {
     if (location) {
       setIsRefreshing(true);
-      try {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        dispatch({ type: 'REFRESH_WEATHER' });
-      } finally {
-        setIsRefreshing(false);
-        dispatch({ type: 'SET_LOADING', payload: false });
-      }
+      await fetchWeatherData(location, selectedDate);
+      setIsRefreshing(false);
     }
   };
 
@@ -54,6 +75,14 @@ const WeatherDashboard = () => {
         payload: error.message
       });
     }
+  };
+
+  // Get the formatted location name
+  const getFormattedLocation = () => {
+    if (state.weatherData?.location?.fullAddress) {
+      return state.weatherData.location.fullAddress;
+    }
+    return location;
   };
 
   return (
@@ -101,9 +130,17 @@ const WeatherDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MapPin className="w-5 h-5 text-gray-400 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-800">
-                {location}
-              </h2>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {getFormattedLocation()}
+                </h2>
+                {state.weatherData?.location?.latitude && (
+                  <p className="text-sm text-gray-500">
+                    {state.weatherData.location.latitude.toFixed(2)}°, 
+                    {state.weatherData.location.longitude.toFixed(2)}°
+                  </p>
+                )}
+              </div>
             </div>
             <button
               onClick={handleRefresh}
@@ -116,25 +153,29 @@ const WeatherDashboard = () => {
             </button>
           </div>
 
-          <WeatherSummary />
-          <WeatherAdvice />
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">
-            Select Week for Forecast
-            <span className="text-sm text-gray-500 ml-2">
-              (Monday to Sunday)
-            </span>
-          </h2>
-          <WeekSelector currentDate={selectedDate} onDateChange={handleDateChange} />
-          
-          {/* Weather Comparison and Chart */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">
-              Weather Comparison
-            </h2>
-            <WeatherComparison />
-          </div>
+          {/* Week Selector */}
+          <WeekSelector 
+            currentDate={selectedDate}
+            onDateChange={handleDateChange}
+          />
 
-          <WeatherChart />
+          {/* Weather Components */}
+          <WeatherSummary 
+            weatherData={state.weatherData?.weekData?.[0]} 
+            location={state.weatherData?.location}
+          />
+          <WeatherAdvice 
+            weatherData={state.weatherData?.weekData} 
+            selectedDate={selectedDate}
+          />
+          <WeatherComparison 
+            weekData={state.weatherData?.weekData}
+            dateRange={state.weatherData?.dateRange}
+          />
+          <WeatherChart 
+            weekData={state.weatherData?.weekData}
+            dateRange={state.weatherData?.dateRange}
+          />
         </div>
       )}
 
