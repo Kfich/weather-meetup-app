@@ -1,4 +1,5 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { 
   Sun, 
   Cloud, 
@@ -21,7 +22,8 @@ const WeatherCard = ({ title, weather }) => {
         container: 'bg-gradient-to-br from-purple-50 to-slate-100 border-purple-100',
         text: 'text-purple-900',
         subText: 'text-purple-800',
-        icon: 'text-purple-500'
+        icon: 'text-purple-500',
+        caption: 'text-purple-600'
       };
     }
     if (condition.includes('heavy rain')) {
@@ -29,7 +31,8 @@ const WeatherCard = ({ title, weather }) => {
         container: 'bg-gradient-to-br from-blue-100 to-slate-100 border-blue-200',
         text: 'text-blue-900',
         subText: 'text-blue-800',
-        icon: 'text-blue-600'
+        icon: 'text-blue-600',
+        caption: 'text-blue-600'
       };
     }
     if (condition.includes('rain') || condition.includes('drizzle')) {
@@ -37,7 +40,8 @@ const WeatherCard = ({ title, weather }) => {
         container: 'bg-gradient-to-br from-blue-50 to-slate-100 border-blue-100',
         text: 'text-blue-900',
         subText: 'text-blue-800',
-        icon: 'text-blue-500'
+        icon: 'text-blue-500',
+        caption: 'text-blue-600'
       };
     }
     if (condition.includes('snow')) {
@@ -45,7 +49,8 @@ const WeatherCard = ({ title, weather }) => {
         container: 'bg-gradient-to-br from-sky-50 to-indigo-50 border-sky-100',
         text: 'text-sky-900',
         subText: 'text-sky-800',
-        icon: 'text-sky-500'
+        icon: 'text-sky-500',
+        caption: 'text-sky-600'
       };
     }
     if (condition.includes('cloud')) {
@@ -53,7 +58,8 @@ const WeatherCard = ({ title, weather }) => {
         container: 'bg-gradient-to-br from-gray-50 to-slate-100 border-gray-200',
         text: 'text-gray-900',
         subText: 'text-gray-700',
-        icon: 'text-gray-500'
+        icon: 'text-gray-500',
+        caption: 'text-gray-600'
       };
     }
     if (temperature >= 85) {
@@ -61,15 +67,16 @@ const WeatherCard = ({ title, weather }) => {
         container: 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-100',
         text: 'text-orange-900',
         subText: 'text-orange-800',
-        icon: 'text-orange-500'
+        icon: 'text-orange-500',
+        caption: 'text-orange-600'
       };
     }
-    // Default sunny/clear conditions
     return {
       container: 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-100',
       text: 'text-yellow-900',
       subText: 'text-yellow-800',
-      icon: 'text-yellow-500'
+      icon: 'text-yellow-500',
+      caption: 'text-yellow-600'
     };
   };
 
@@ -122,14 +129,20 @@ const WeatherCard = ({ title, weather }) => {
   const styles = getWeatherStyles(weather.conditions, weather.temperature);
   const precipInfo = getPrecipitationInfo(weather.conditions);
 
+  // Format the date from the weather data
+  const formattedDate = weather.date ? format(new Date(weather.date), 'MMMM d, yyyy') : '';
+
   return (
     <div className={`backdrop-blur-sm rounded-lg shadow-sm p-6 border transition-all ${styles.container}`}>
-      <div className="flex justify-between items-start mb-4">
-        <h3 className={`text-lg font-semibold ${styles.text}`}>{title}</h3>
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h3 className={`text-lg font-semibold ${styles.text}`}>{title}</h3>
+          <p className={`text-sm ${styles.caption} mt-1`}>{formattedDate}</p>
+        </div>
         {getWeatherIcon(weather.conditions, weather.temperature)}
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-4 mt-4">
         <div>
           <div className={`text-3xl font-bold ${styles.text}`}>
             {Math.round(weather.temperature)}°F

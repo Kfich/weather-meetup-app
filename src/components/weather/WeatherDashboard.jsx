@@ -164,13 +164,13 @@ const WeatherDashboard = () => {
             weatherData={state.weatherData?.weekData?.[0]} 
             location={state.weatherData?.location}
           />
-          <WeatherAdvice 
-            weatherData={state.weatherData?.weekData} 
-            selectedDate={selectedDate}
-          />
           <WeatherComparison 
             weekData={state.weatherData?.weekData}
             dateRange={state.weatherData?.dateRange}
+          />
+          <WeatherAdvice 
+            weatherData={state.weatherData?.weekData} 
+            selectedDate={selectedDate}
           />
           <WeatherChart 
             weekData={state.weatherData?.weekData}
